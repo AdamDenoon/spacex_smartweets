@@ -9,7 +9,7 @@ from nltk.corpus import wordnet
 lemma = WordNetLemmatizer()
 tokenizer = nltk.word_tokenize # NB: splits off #s and @s; otherwise, use TweetTokenizer().tokenize 
 
-spacexdir = os.path.expanduser('~/github/spacex_smartweets/')
+spacexdir = os.path.expanduser('~/tweetbot/spacex_smartweets/')
 keys = os.path.join(spacexdir, 'keys.json')
 seentweets = os.path.join(spacexdir, 'seen_tweets.txt')
 log = os.path.join(spacexdir,'log.txt')
@@ -116,6 +116,11 @@ people = {'@elonmusk':{'real_name':'Elon Musk',
                           'retweets': False,
                           'replies': True,
                           'bio': 'journalist with @Brownsvillenews'},
+          '@LabPadre': {'real_name': 'LabPadre',
+                              'triggers': spacex_mentions|starship|bocachica|spacexthings,
+                              'retweets': False,
+                              'replies': False,
+                              'bio': 'Top-notch, 24-hr SpaceX Boca Chica livestreaming'},
           '@SpacePadreIsle': {'real_name': 'Spadre',
                               'triggers': spacex_mentions|starship|bocachica,
                               'retweets': False,
@@ -243,8 +248,8 @@ def searchTweets(log_file=log_file, seen_tweets=seen_tweets):
                 clean_text = re.split('https://t.co', tweet.full_text, maxsplit=1)[0].strip() # rm twitter URLs; prevents Slack from double-preview
                 person_name = tweet.user.name
                 send_text = f'//{person_name}// {clean_text} {tweet_url}'
-                requests.post(url=keys['slack']['webhook'], 
-                             data=json.dumps({'text':send_text}))            
+                requests.post(url=keys['discord']['webhook'], 
+                             data={'content':send_text})            
                 seen_tweets.append(tweet.id_str)
                 log_file += f'{datetime.now().__str__()}\t\ttrigger {tweet.id_str} ({person} ) | tweet triggers: {tweet_triggers} | reply triggers: {reply_triggers} | tweet_age: {tweet_age}\n'
     
